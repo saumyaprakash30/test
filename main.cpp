@@ -144,7 +144,7 @@ int main(int argc, char *argv[])
 		for (int i = 1; i < total_proc; i++)
 		{
 			int tempF[n_per_proc][SIZE];
-			MPI_Recv(&tempF, n_per_proc * SIZE, MPI_INT, i, 0, MPI_COMM_WORLD, status);
+			MPI_Recv(&tempF, n_per_proc * SIZE, MPI_INT, i, 0, MPI_COMM_WORLD, &status);
 			for (j = i * n_per_proc; j < i * n_per_proc + n_per_proc; i++)
 			{
 				for (k = 0; k < SIZE; k++)
