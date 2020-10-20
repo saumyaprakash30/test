@@ -85,6 +85,7 @@ int main(int argc, char *argv[])
 			{
 				for (int j = 0; j < SIZE; j++)
 				{
+					cout<<"test "<<rank<<endl;
 					double cosTerm = cos(2 * PI * ((double)((double)m * (double)i / (double)SIZE) + (double)((double)n * (double)j / (double)SIZE)));
 					double sinTerm = -1 * sin(2 * PI * ((double)((double)m * (double)i / (double)SIZE) + (double)((double)n * (double)j / (double)SIZE)));
 					sum_r += (double)img[i][j] * cosTerm;
