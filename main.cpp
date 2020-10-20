@@ -4,6 +4,7 @@ using namespace std;
 
 #define MASTER 0
 #define PI 3.141592
+int img[SIZE][SIZE];
 
 
 struct complexNum{
@@ -36,7 +37,6 @@ int main(int argc, char *argv[]){
 	int total_proc;  
 	int rank;        
 	int n_per_proc,leftOut;
-	int img[SIZE][SIZE];
 	struct complexNum dftImg[SIZE][SIZE];
 
 	MPI_Init (&argc, &argv);
@@ -45,6 +45,9 @@ int main(int argc, char *argv[]){
 	MPI_Comm_rank (MPI_COMM_WORLD,&rank);
 	n_per_proc = SIZE/total_proc;
 	leftOut = SIZE%total_proc;
+
+	double start;
+
 	if(rank==MASTER){
 		freopen("lena200.txt", "r", stdin);
 
@@ -53,8 +56,23 @@ int main(int argc, char *argv[]){
 				cin>>img[i][j];
 			}
 		}
-
+		
 	}
+	const int nitems=3;
+    int          blocklengths[3] = {1,1,1};
+    MPI_Datatype types[3] = {MPI_DOUBLE, MPI_DOUBLE, MPI_DOUBLE};
+    MPI_Datatype mpi_complexNum;
+    MPI_Aint     offsets[3];
+
+    offsets[0] = offsetof(complexNum, real);
+    offsets[1] = offsetof(complexNum, iamg);
+    offsets[2] = offsetof(complexNum, value);
+
+    MPI_Type_create_struct(nitems, blocklengths, offsets, types, &mpi_complexNum);
+    MPI_Type_commit(&mpi_complexNum);
+
+	start = MPI_Wtime();
+
 	MPI_Bcast(img, SIZE*SIZE, MPI_INT, 0, MPI_COMM_WORLD);
 	struct complexNum temp[n_per_proc][SIZE];
 	for(i=rank*n_per_proc;i<rank*n_per_proc+n_per_proc;i++){
@@ -63,15 +81,41 @@ int main(int argc, char *argv[]){
 			// temp1 = dft(i,j);
 			// temp[i][j].real = temp1.real;
 			// temp[i][j].imag = temp1.imag;
-			temp[i-rank*n_per_proc][j] = dft(i,j);
-		}
-	}
-	if(leftOut!=0 && rank==MASTER){
-		for(i=n_per_proc*total_proc+1;i<SIZE;i++){
-			for(j=0;j<SIZE;j++){
-				
+			if(rank==MASTER){
+				struct complexNum temp2
+				temp2 = dft(i,j);
+				dftImg[i][j]=temp2.value;
+			}else
+			{
+				temp[i-rank*n_per_proc][j] = dft(i,j);
 			}
 		}
+	}
+	if(rank!=MASTER){
+		MPI_Send(&temp,n_per_proc*SIZE,mpi_complexNum,0,0,MPI_COMM_WORLD);
+	}
+	if(rank==MASTER){
+		if(leftOut!=0 ){
+			struct complexNum tempLeft[leftOut][SIZE];
+			for(i=n_per_proc*total_proc;i<SIZE;i++){
+				for(j=0;j<SIZE;j++){
+					// tempLeft[i-(n_per_proc*total_proc)][j] = dft(i,j);
+					struct complexNum temp2
+					temp2 = dft(i,j);
+					dftImg[i][j]=temp2.value;
+				}
+			}
+		}
+		for(int i=1;i<total_proc;i++){
+			struct complexNum tempF[n_per_proc][SIZE];
+			MPI_Recv(&tempF,n_per_proc*SIZE,mpi_complexNum,i,0,MPI_COMM_WORLD);
+			for(j=i*n_per_proc;j<i*n_per_proc+n_per_proc;i++){
+				for(k=0;k<SIZE;k++){
+					dftImg[j][k] = tempF[j-i*n_per_proc][k].value;
+				}
+			}
+		}
+		cout<<MPI_Wtime()-start<<endl;
 	}
 	
 
