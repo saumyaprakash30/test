@@ -16,8 +16,8 @@ int img[SIZE][SIZE];
 //         double sum_r=0,sum_i=0;
 //         for(int i=0;i<SIZE;i++){
 //                 for (int j=0;j<SIZE;j++){
-//                         double cosTerm = cos(2*PI*((double)((double)m*(double)i/(double)ROW) + (double)((double)n*(double)j/(double)COL)));
-//                         double sinTerm = -1*sin(2*PI*((double)((double)m*(double)i/(double)ROW) + (double)((double)n*(double)j/(double)COL)));
+//                         double cosTerm = cos(2*PI*((double)((double)m*(double)i/(double)SIZE) + (double)((double)n*(double)j/(double)SIZE)));
+//                         double sinTerm = -1*sin(2*PI*((double)((double)m*(double)i/(double)SIZE) + (double)((double)n*(double)j/(double)SIZE)));
 //                         sum_r+=(double)img[i][j]*cosTerm;
 //                         sum_i+=(double)img[i][j]*sinTerm;
 //                 }
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	int total_proc;
 	int rank;
 	int n_per_proc, leftOut;
-	struct complexNum dftImg[SIZE][SIZE];
+	int dftImg[SIZE][SIZE];
 
 	MPI_Init(&argc, &argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &total_proc);
@@ -85,8 +85,8 @@ int main(int argc, char *argv[])
 			{
 				for (int j = 0; j < SIZE; j++)
 				{
-					double cosTerm = cos(2 * PI * ((double)((double)m * (double)i / (double)ROW) + (double)((double)n * (double)j / (double)COL)));
-					double sinTerm = -1 * sin(2 * PI * ((double)((double)m * (double)i / (double)ROW) + (double)((double)n * (double)j / (double)COL)));
+					double cosTerm = cos(2 * PI * ((double)((double)m * (double)i / (double)SIZE) + (double)((double)n * (double)j / (double)SIZE)));
+					double sinTerm = -1 * sin(2 * PI * ((double)((double)m * (double)i / (double)SIZE) + (double)((double)n * (double)j / (double)SIZE)));
 					sum_r += (double)img[i][j] * cosTerm;
 					sum_i += (double)img[i][j] * sinTerm;
 				}
@@ -125,8 +125,8 @@ int main(int argc, char *argv[])
 					{
 						for (int j = 0; j < SIZE; j++)
 						{
-							double cosTerm = cos(2 * PI * ((double)((double)m * (double)i / (double)ROW) + (double)((double)n * (double)j / (double)COL)));
-							double sinTerm = -1 * sin(2 * PI * ((double)((double)m * (double)i / (double)ROW) + (double)((double)n * (double)j / (double)COL)));
+							double cosTerm = cos(2 * PI * ((double)((double)m * (double)i / (double)SIZE) + (double)((double)n * (double)j / (double)SIZE)));
+							double sinTerm = -1 * sin(2 * PI * ((double)((double)m * (double)i / (double)SIZE) + (double)((double)n * (double)j / (double)SIZE)));
 							sum_r += (double)img[i][j] * cosTerm;
 							sum_i += (double)img[i][j] * sinTerm;
 						}
